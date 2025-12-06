@@ -1,102 +1,124 @@
 import './Register.css';
-import {useEffect,useState} from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-function Register()
-{
-   const navigate = useNavigate(); 
-  const[data1,setData]=useState("");
-  const[data2,setData2]=useState("");
-  const[data3,setData3]=useState("");
-  const[data4,setData4]=useState("");
-  const[formData,setFormData]=useState({});
-  const formHandler =async()=>
-  {
-    const response=await fetch("https://ev-backend-y8vm.onrender.com/api/users/register",
-      {
-        method :"POST",
-        headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-      }
-    );
-   
-      
-  const result= await response.json();
-  if(!response.ok)
-   {
-    alert("not succefull");
-   }
-   localStorage.setItem("token",result.accessToken);
-     setData("");
-     setData2("");
-     setData3("");
-     setData4("");
-      navigate("/dashboard");
-  }
-  const submitHandler=(e)=>{
-    e.preventDefault();
-    if(data3!=data4)
-    {
-      alert("Password not matching");
-    }
-    else
-    {
-      setFormData({
-        name:data1,
-        email:data2,
-        password:data3
 
+function Register() {
+  const navigate = useNavigate(); 
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const resetForm = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+  };
+
+  const formHandler = async (formData) => {
+    try {
+      const response = await fetch("https://ev-backend-y8vm.onrender.com/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
-      formHandler();
-      
 
+      const text = await response.text(); // read as text first
+      let result;
+      try {
+        result = JSON.parse(text); // try parsing JSON
+      } catch (err) {
+        console.error("Backend returned invalid JSON:", text);
+        alert("Server error. Please try again later.");
+        return;
+      }
+
+      if (!response.ok) {
+        console.error("Registration failed:", result);
+        alert(result.message || "Registration failed");
+        return;
+      }
+
+      // Success
+      localStorage.setItem("token", result.accessToken);
+      resetForm();
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Network error:", err);
+      alert("Network error. Please try again.");
     }
-  }
-    return(
-      <div className='reg'>
-         <form onSubmit={submitHandler} className='register'>
-      <h2>Register</h2>
-      <p>Create an account to manage charging stations</p>
+  };
 
-      <div>
-        <label>Name</label>
-        <input 
-        type="text" 
-        placeholder="John Doe" 
-        value={data1}
-        onChange={(e)=>setData(e.target.value)}
-        />
-      </div>
+  const submitHandler = (e) => {
+    e.preventDefault();
 
-      <div>
-        <label>Email</label> 
-        <input type="email" 
-        placeholder="name@example.com"
-        value={data2}
-        onChange={(e)=>setData2(e.target.value)}
-         />
-      </div>
+    if (password !== confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
 
-      <div>
-        <label>Password</label> 
-        <input type="password" placeholder="password" 
-         value={data3}
-        onChange={(e)=>setData3(e.target.value)}/>
-      </div>
+    const formData = { name, email, password };
+    formHandler(formData);
+  };
 
-      <div>
-        <label>Confirm Password</label> 
-        <input type="password" placeholder="confirm Password"
-        value={data4}
-        onChange={(e)=>setData4(e.target.value)} />
-      </div>
+  return (
+    <div className='reg'>
+      <form onSubmit={submitHandler} className='register'>
+        <h2>Register</h2>
+        <p>Create an account to manage charging stations</p>
 
-      <button type="submit">Register</button>
+        <div>
+          <label>Name</label>
+          <input
+            type="text"
+            placeholder="John Doe"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </div>
 
-      <p>Already have an account? <a href="/login">Login</a></p>
-    </form>
+        <div>
+          <label>Email</label>
+          <input
+            type="email"
+            placeholder="name@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label>Password</label>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <div>
+          <label>Confirm Password</label>
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+          />
+        </div>
+
+        <button type="submit">Register</button>
+
+        <p>Already have an account? <a href="/login">Login</a></p>
+      </form>
     </div>
-    )
+  );
 }
+
 export default Register;
