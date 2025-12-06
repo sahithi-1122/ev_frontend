@@ -1,0 +1,82 @@
+.register{
+  width: 350px;
+  /* display: flex;
+  place-items: center; */
+  margin: 80px auto;
+  padding: 30px;
+  padding-right: 55px;
+  border-radius: 10px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  color:black;
+ 
+}
+.reg{
+  background-color: rgba(184, 240, 212, 0.942);
+    min-height: 100vh;
+justify-content: center;     
+  align-items: center;         
+  flex-direction: column;
+   display: flex;
+
+}
+
+.register h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.register p {
+  text-align: center;
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.register label {
+  font-weight: bold;
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.register input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.register button {
+  width: 100%;
+  padding: 10px;
+  background-color: green;
+  color: white;
+  border: none;
+  font-size: 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.register button:hover {
+  background-color: #006400;
+}
+
+.register a {
+  color: green;
+  text-decoration: none;
+}
+
+.register a:hover {
+     color: green;
+  text-decoration: none;
+}
+
+.register p:last-child {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
