@@ -1,13 +1,20 @@
 function List({ searchQuery, tasks, statusQuery, connectQuery }) {
-  const filteredTasks = tasks.filter((task) => {
-    const matchesSearch =
-      task.Name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.Location.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = !statusQuery || task.Status === statusQuery
-    const matchesConnector = !connectQuery || task.ConnectorType === connectQuery
+  const safeTasks = Array.isArray(tasks) ? tasks : [];
 
-    return matchesSearch && matchesStatus && matchesConnector
-  })
+  const filteredTasks = safeTasks.filter((task) => {
+    const name = task.name || "";
+    const location = task.address || "";
+
+    const matchesSearch =
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      location.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = !statusQuery || task.status === statusQuery;
+    const matchesConnector =
+      !connectQuery || task.connectortype === connectQuery;
+
+    return matchesSearch && matchesStatus && matchesConnector;
+  });
 
   return (
     <div className="table-wrapper">
@@ -24,34 +31,40 @@ function List({ searchQuery, tasks, statusQuery, connectQuery }) {
         </thead>
         <tbody>
           {filteredTasks.map((task) => (
-            <tr key={task.id}>
-              <td>{task.Name}</td>
-              <td>{task.Location}</td>
+            <tr key={task._id}>
+              <td>{task.name}</td>
+              <td>{task.address}</td>
               <td>
                 <span
-                  className={`status-badge ${task.Status.toLowerCase() === "active" ? "status-active" : "status-inactive"}`}
+                  className={`status-badge ${
+                    task.status?.toLowerCase() === "active"
+                      ? "status-active"
+                      : "status-inactive"
+                  }`}
                 >
-                  {task.Status}
+                  {task.status}
                 </span>
               </td>
-              <td>{task.PowerOutput}</td>
-              <td>{task.ConnectorType}</td>
+              <td>{task.poweroutput} kW</td>
+              <td>{task.connectortype}</td>
               <td>
                 <div className="actions-cell">
-                  <button className="action-btn" title="Edit">
-                    ✏️
-                  </button>
-                  <button className="action-btn delete" title="Delete">
-                    🗑️
-                  </button>
+                  <button className="action-btn">✏️</button>
+                  <button className="action-btn delete">🗑️</button>
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {filteredTasks.length === 0 && (
+        <p style={{ textAlign: "center", marginTop: "20px" }}>
+          No stations found
+        </p>
+      )}
     </div>
-  )
+  );
 }
 
-export default List
+export default List;
