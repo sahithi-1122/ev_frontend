@@ -1,54 +1,56 @@
-import "./DashBoard.css"
-import Searchbar from "./Searchbar.jsx"
-import Status from "./Status.jsx"
-import Connectors from "./Connectors.jsx"
-import { useState } from "react"
-import List from "./List.jsx"
-import MapView from "./MapView.jsx"
-import Pop from "./Pop.jsx"
-import NavBar from "./NavBar.jsx"
+import "./DashBoard.css";
+import Searchbar from "./Searchbar.jsx";
+import Status from "./Status.jsx";
+import Connectors from "./Connectors.jsx";
+import { useState, useEffect } from "react";
+import List from "./List.jsx";
+import MapView from "./MapView.jsx";
+import Pop from "./Pop.jsx";
+import NavBar from "./NavBar.jsx";
+
 function Dashboard({ isModalOpen, setIsModalOpen }) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusQuery, setstatusQuery] = useState("")
-  const [connectQuery, setconnectQuery] = useState("")
-  const [currentView, setCurrentView] = useState("list") 
+  const [tasks, setTasks] = useState([]); // dynamic tasks state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusQuery, setstatusQuery] = useState("");
+  const [connectQuery, setconnectQuery] = useState("");
+  const [currentView, setCurrentView] = useState("list");
 
-  const handleSubmit = (formData) => {
-    console.log("Form submitted:", formData)
-    // Handle form submission here
-  }
+  // Fetch tasks from backend
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch("https://ev-backend-y8vm.onrender.com/api/tasks");
+      if (!res.ok) throw new Error("Failed to fetch tasks");
+      const data = await res.json();
+      setTasks(data); // set fetched tasks
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
 
-  const tasks = [
-    {
-      id: 1,
-      Name: "Test-1",
-      Location: "Address Testing",
-      Status: "Active",
-      PowerOutput: "40KW",
-      ConnectorType: "Type-2",
-      Actions: "delete",
-      lat: 40.7128,
-      lng: -74.006,
-    },
-    {
-      id: 2,
-      Name: "Test-2",
-      Location: "Delhi",
-      Status: "Active",
-      PowerOutput: "940KW",
-      ConnectorType: "Type-1",
-      Actions: "delete",
-      lat: 40.7589,
-      lng: -73.9851,
-    },
-  ]
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  // Handle new task submission from Pop
+  const handleSubmit = (newTask) => {
+    console.log("New task submitted:", newTask);
+    // Ensure a unique id exists
+    const taskWithId = { ...newTask, id: newTask._id || Date.now() };
+    setTasks((prevTasks) => [...prevTasks, taskWithId]);
+  };
 
   return (
     <div className="dashboard">
-      <Pop isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSubmit={handleSubmit}></Pop>
-     <NavBar setIsModalOpen={setIsModalOpen}/>
-     
-      
+      {/* Pop Modal */}
+      <Pop
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleSubmit}
+      />
+
+      {/* Navigation */}
+      <NavBar setIsModalOpen={setIsModalOpen} />
+
       {/* View Toggle Buttons */}
       <div className="view-toggle-container">
         <div className="view-toggle">
@@ -58,13 +60,16 @@ function Dashboard({ isModalOpen, setIsModalOpen }) {
           >
             List View
           </button>
-          <button className={`view-btn ${currentView === "map" ? "active" : ""}`} onClick={() => setCurrentView("map")}>
+          <button
+            className={`view-btn ${currentView === "map" ? "active" : ""}`}
+            onClick={() => setCurrentView("map")}
+          >
             Map View
           </button>
         </div>
       </div>
 
-      {/* Conditionally render filters only for list view */}
+      {/* Filters (only in list view) */}
       {currentView === "list" && (
         <div className="filters-container">
           <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
@@ -73,18 +78,23 @@ function Dashboard({ isModalOpen, setIsModalOpen }) {
         </div>
       )}
 
-      {/* Content Section */}
+      {/* Content */}
       <div className="content-container">
         {currentView === "list" ? (
           <div className="table-container">
-            <List searchQuery={searchQuery} tasks={tasks} statusQuery={statusQuery} connectQuery={connectQuery} />
+            <List
+              searchQuery={searchQuery}
+              tasks={tasks}
+              statusQuery={statusQuery}
+              connectQuery={connectQuery}
+            />
           </div>
         ) : (
           <MapView tasks={tasks} />
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default Dashboard
+export default Dashboard;
